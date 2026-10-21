@@ -438,188 +438,188 @@ exclusivamente académicos.</p>
 <p>El archivo <code class="docutils literal notranslate"><span class="pre">_utils.py</span></code> centraliza la carga del conjunto de datos, la partición
 reproducible, la ingeniería de variables y la construcción de los <em>pipelines</em>, de modo
 que todos los capítulos usan exactamente la misma partición y el mismo preprocesamiento.</p>
-<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">"""Funciones y constantes compartidas por los capítulos del libro.</span>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="sd">&quot;&quot;&quot;Funciones y constantes compartidas por los capítulos del libro.</span>
 
 <span class="sd">Centraliza la carga del dataset, la partición reproducible, los nombres de las</span>
 <span class="sd">variables y la construcción de los pipelines, de modo que todos los capítulos</span>
 <span class="sd">trabajen exactamente con la misma partición de entrenamiento y prueba.</span>
-<span class="sd">"""</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">from</span> <span class="nn">pathlib</span> <span class="kn">import</span> <span class="n">Path</span>
 
 <span class="c1"># Evita que joblib intente contar núcleos físicos con utilidades no disponibles en Windows.</span>
-<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">"LOKY_MAX_CPU_COUNT"</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()))</span>
+<span class="n">os</span><span class="o">.</span><span class="n">environ</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="s2">&quot;LOKY_MAX_CPU_COUNT&quot;</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">cpu_count</span><span class="p">()))</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">pandas</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">pd</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.compose</span><span class="w"> </span><span class="kn">import</span> <span class="n">ColumnTransformer</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.linear_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">LogisticRegression</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.model_selection</span><span class="w"> </span><span class="kn">import</span> <span class="n">train_test_split</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.pipeline</span><span class="w"> </span><span class="kn">import</span> <span class="n">Pipeline</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.preprocessing</span><span class="w"> </span><span class="kn">import</span> <span class="n">FunctionTransformer</span><span class="p">,</span> <span class="n">StandardScaler</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <span class="n">ColumnTransformer</span>
+<span class="kn">from</span> <span class="nn">sklearn.linear_model</span> <span class="kn">import</span> <span class="n">LogisticRegression</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">train_test_split</span>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">Pipeline</span>
+<span class="kn">from</span> <span class="nn">sklearn.preprocessing</span> <span class="kn">import</span> <span class="n">FunctionTransformer</span><span class="p">,</span> <span class="n">StandardScaler</span>
 
 <span class="n">RANDOM_STATE</span> <span class="o">=</span> <span class="mi">42</span>
 <span class="n">TEST_SIZE</span> <span class="o">=</span> <span class="mf">0.20</span>
-<span class="n">DATA_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s2">"datos"</span> <span class="o">/</span> <span class="s2">"covertype.csv"</span>
-<span class="n">TARGET</span> <span class="o">=</span> <span class="s2">"Cover_Type"</span>
+<span class="n">DATA_PATH</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">resolve</span><span class="p">()</span><span class="o">.</span><span class="n">parents</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">/</span> <span class="s2">&quot;datos&quot;</span> <span class="o">/</span> <span class="s2">&quot;covertype.csv&quot;</span>
+<span class="n">TARGET</span> <span class="o">=</span> <span class="s2">&quot;Cover_Type&quot;</span>
 
 <span class="n">NUM_COLS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"Elevation"</span><span class="p">,</span>
-    <span class="s2">"Aspect"</span><span class="p">,</span>
-    <span class="s2">"Slope"</span><span class="p">,</span>
-    <span class="s2">"Horizontal_Distance_To_Hydrology"</span><span class="p">,</span>
-    <span class="s2">"Vertical_Distance_To_Hydrology"</span><span class="p">,</span>
-    <span class="s2">"Horizontal_Distance_To_Roadways"</span><span class="p">,</span>
-    <span class="s2">"Hillshade_9am"</span><span class="p">,</span>
-    <span class="s2">"Hillshade_Noon"</span><span class="p">,</span>
-    <span class="s2">"Hillshade_3pm"</span><span class="p">,</span>
-    <span class="s2">"Horizontal_Distance_To_Fire_Points"</span><span class="p">,</span>
+    <span class="s2">&quot;Elevation&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Aspect&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Slope&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Horizontal_Distance_To_Hydrology&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Vertical_Distance_To_Hydrology&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Horizontal_Distance_To_Roadways&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hillshade_9am&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hillshade_Noon&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hillshade_3pm&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Horizontal_Distance_To_Fire_Points&quot;</span><span class="p">,</span>
 <span class="p">]</span>
-<span class="n">WILD_COLS</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"Wilderness_Area_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]</span>
-<span class="n">SOIL_COLS</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">"Soil_Type_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">41</span><span class="p">)]</span>
+<span class="n">WILD_COLS</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Wilderness_Area_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">5</span><span class="p">)]</span>
+<span class="n">SOIL_COLS</span> <span class="o">=</span> <span class="p">[</span><span class="sa">f</span><span class="s2">&quot;Soil_Type_</span><span class="si">{</span><span class="n">i</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">41</span><span class="p">)]</span>
 <span class="n">BIN_COLS</span> <span class="o">=</span> <span class="n">WILD_COLS</span> <span class="o">+</span> <span class="n">SOIL_COLS</span>
 <span class="n">FEATURES</span> <span class="o">=</span> <span class="n">NUM_COLS</span> <span class="o">+</span> <span class="n">BIN_COLS</span>
 
 <span class="n">CLASS_NAMES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mi">1</span><span class="p">:</span> <span class="s2">"Abeto/pícea (Spruce/Fir)"</span><span class="p">,</span>
-    <span class="mi">2</span><span class="p">:</span> <span class="s2">"Pino lodgepole"</span><span class="p">,</span>
-    <span class="mi">3</span><span class="p">:</span> <span class="s2">"Pino ponderosa"</span><span class="p">,</span>
-    <span class="mi">4</span><span class="p">:</span> <span class="s2">"Álamo/sauce (Cottonwood/Willow)"</span><span class="p">,</span>
-    <span class="mi">5</span><span class="p">:</span> <span class="s2">"Álamo temblón (Aspen)"</span><span class="p">,</span>
-    <span class="mi">6</span><span class="p">:</span> <span class="s2">"Abeto de Douglas"</span><span class="p">,</span>
-    <span class="mi">7</span><span class="p">:</span> <span class="s2">"Krummholz"</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;Abeto/pícea (Spruce/Fir)&quot;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;Pino lodgepole&quot;</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;Pino ponderosa&quot;</span><span class="p">,</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;Álamo/sauce (Cottonwood/Willow)&quot;</span><span class="p">,</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;Álamo temblón (Aspen)&quot;</span><span class="p">,</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;Abeto de Douglas&quot;</span><span class="p">,</span>
+    <span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;Krummholz&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 <span class="n">CLASS_SHORT</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mi">1</span><span class="p">:</span> <span class="s2">"1 Abeto/pícea"</span><span class="p">,</span>
-    <span class="mi">2</span><span class="p">:</span> <span class="s2">"2 P. lodgepole"</span><span class="p">,</span>
-    <span class="mi">3</span><span class="p">:</span> <span class="s2">"3 P. ponderosa"</span><span class="p">,</span>
-    <span class="mi">4</span><span class="p">:</span> <span class="s2">"4 Álamo/sauce"</span><span class="p">,</span>
-    <span class="mi">5</span><span class="p">:</span> <span class="s2">"5 Á. temblón"</span><span class="p">,</span>
-    <span class="mi">6</span><span class="p">:</span> <span class="s2">"6 A. Douglas"</span><span class="p">,</span>
-    <span class="mi">7</span><span class="p">:</span> <span class="s2">"7 Krummholz"</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;1 Abeto/pícea&quot;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;2 P. lodgepole&quot;</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;3 P. ponderosa&quot;</span><span class="p">,</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;4 Álamo/sauce&quot;</span><span class="p">,</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;5 Á. temblón&quot;</span><span class="p">,</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;6 A. Douglas&quot;</span><span class="p">,</span>
+    <span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;7 Krummholz&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 <span class="n">WILD_NAMES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mi">1</span><span class="p">:</span> <span class="s2">"Rawah"</span><span class="p">,</span>
-    <span class="mi">2</span><span class="p">:</span> <span class="s2">"Neota"</span><span class="p">,</span>
-    <span class="mi">3</span><span class="p">:</span> <span class="s2">"Comanche Peak"</span><span class="p">,</span>
-    <span class="mi">4</span><span class="p">:</span> <span class="s2">"Cache la Poudre"</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;Rawah&quot;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;Neota&quot;</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;Comanche Peak&quot;</span><span class="p">,</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;Cache la Poudre&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">DISPLAY_NAMES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">"Elevation"</span><span class="p">:</span> <span class="s2">"Elevación (m)"</span><span class="p">,</span>
-    <span class="s2">"Aspect"</span><span class="p">:</span> <span class="s2">"Orientación (° azimut)"</span><span class="p">,</span>
-    <span class="s2">"Slope"</span><span class="p">:</span> <span class="s2">"Pendiente (°)"</span><span class="p">,</span>
-    <span class="s2">"Horizontal_Distance_To_Hydrology"</span><span class="p">:</span> <span class="s2">"Dist. horizontal a agua (m)"</span><span class="p">,</span>
-    <span class="s2">"Vertical_Distance_To_Hydrology"</span><span class="p">:</span> <span class="s2">"Dist. vertical a agua (m)"</span><span class="p">,</span>
-    <span class="s2">"Horizontal_Distance_To_Roadways"</span><span class="p">:</span> <span class="s2">"Dist. a carreteras (m)"</span><span class="p">,</span>
-    <span class="s2">"Hillshade_9am"</span><span class="p">:</span> <span class="s2">"Sombreado 9 a. m. (0-255)"</span><span class="p">,</span>
-    <span class="s2">"Hillshade_Noon"</span><span class="p">:</span> <span class="s2">"Sombreado mediodía (0-255)"</span><span class="p">,</span>
-    <span class="s2">"Hillshade_3pm"</span><span class="p">:</span> <span class="s2">"Sombreado 3 p. m. (0-255)"</span><span class="p">,</span>
-    <span class="s2">"Horizontal_Distance_To_Fire_Points"</span><span class="p">:</span> <span class="s2">"Dist. a puntos de incendio (m)"</span><span class="p">,</span>
+    <span class="s2">&quot;Elevation&quot;</span><span class="p">:</span> <span class="s2">&quot;Elevación (m)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Aspect&quot;</span><span class="p">:</span> <span class="s2">&quot;Orientación (° azimut)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Slope&quot;</span><span class="p">:</span> <span class="s2">&quot;Pendiente (°)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Horizontal_Distance_To_Hydrology&quot;</span><span class="p">:</span> <span class="s2">&quot;Dist. horizontal a agua (m)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Vertical_Distance_To_Hydrology&quot;</span><span class="p">:</span> <span class="s2">&quot;Dist. vertical a agua (m)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Horizontal_Distance_To_Roadways&quot;</span><span class="p">:</span> <span class="s2">&quot;Dist. a carreteras (m)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hillshade_9am&quot;</span><span class="p">:</span> <span class="s2">&quot;Sombreado 9 a. m. (0-255)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hillshade_Noon&quot;</span><span class="p">:</span> <span class="s2">&quot;Sombreado mediodía (0-255)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Hillshade_3pm&quot;</span><span class="p">:</span> <span class="s2">&quot;Sombreado 3 p. m. (0-255)&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Horizontal_Distance_To_Fire_Points&quot;</span><span class="p">:</span> <span class="s2">&quot;Dist. a puntos de incendio (m)&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">CLASS_PALETTE</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="mi">1</span><span class="p">:</span> <span class="s2">"#1b6f5c"</span><span class="p">,</span>
-    <span class="mi">2</span><span class="p">:</span> <span class="s2">"#4c9a2a"</span><span class="p">,</span>
-    <span class="mi">3</span><span class="p">:</span> <span class="s2">"#c8a13a"</span><span class="p">,</span>
-    <span class="mi">4</span><span class="p">:</span> <span class="s2">"#b0413e"</span><span class="p">,</span>
-    <span class="mi">5</span><span class="p">:</span> <span class="s2">"#e07b39"</span><span class="p">,</span>
-    <span class="mi">6</span><span class="p">:</span> <span class="s2">"#5b6fb3"</span><span class="p">,</span>
-    <span class="mi">7</span><span class="p">:</span> <span class="s2">"#8e5ea2"</span><span class="p">,</span>
+    <span class="mi">1</span><span class="p">:</span> <span class="s2">&quot;#1b6f5c&quot;</span><span class="p">,</span>
+    <span class="mi">2</span><span class="p">:</span> <span class="s2">&quot;#4c9a2a&quot;</span><span class="p">,</span>
+    <span class="mi">3</span><span class="p">:</span> <span class="s2">&quot;#c8a13a&quot;</span><span class="p">,</span>
+    <span class="mi">4</span><span class="p">:</span> <span class="s2">&quot;#b0413e&quot;</span><span class="p">,</span>
+    <span class="mi">5</span><span class="p">:</span> <span class="s2">&quot;#e07b39&quot;</span><span class="p">,</span>
+    <span class="mi">6</span><span class="p">:</span> <span class="s2">&quot;#5b6fb3&quot;</span><span class="p">,</span>
+    <span class="mi">7</span><span class="p">:</span> <span class="s2">&quot;#8e5ea2&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
 <span class="n">LOG_COLS</span> <span class="o">=</span> <span class="p">[</span>
-    <span class="s2">"Horizontal_Distance_To_Hydrology"</span><span class="p">,</span>
-    <span class="s2">"Horizontal_Distance_To_Roadways"</span><span class="p">,</span>
-    <span class="s2">"Horizontal_Distance_To_Fire_Points"</span><span class="p">,</span>
+    <span class="s2">&quot;Horizontal_Distance_To_Hydrology&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Horizontal_Distance_To_Roadways&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Horizontal_Distance_To_Fire_Points&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">load_covertype</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">"""Carga el CSV original y devuelve predictoras y objetivo."""</span>
-    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8-sig"</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">load_covertype</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Carga el CSV original y devuelve predictoras y objetivo.&quot;&quot;&quot;</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">read_csv</span><span class="p">(</span><span class="n">DATA_PATH</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8-sig&quot;</span><span class="p">)</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">FEATURES</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">df</span><span class="p">[</span><span class="n">TARGET</span><span class="p">]</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">df</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">split_covertype</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Partición estratificada 80/20 fijada con la semilla del proyecto."""</span>
+<span class="k">def</span> <span class="nf">split_covertype</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Partición estratificada 80/20 fijada con la semilla del proyecto.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">test_size</span><span class="o">=</span><span class="n">TEST_SIZE</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">RANDOM_STATE</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">stratified_sample</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">RANDOM_STATE</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Submuestra estratificada de tamaño n (se usa solo por costo computacional)."""</span>
+<span class="k">def</span> <span class="nf">stratified_sample</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">n</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">RANDOM_STATE</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Submuestra estratificada de tamaño n (se usa solo por costo computacional).&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">n</span> <span class="o">&gt;=</span> <span class="nb">len</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span>
     <span class="n">Xs</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">ys</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">train_test_split</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">train_size</span><span class="o">=</span><span class="n">n</span><span class="p">,</span> <span class="n">stratify</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">Xs</span><span class="p">,</span> <span class="n">ys</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">wilderness_label</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Nombre del área silvestre de cada fila a partir de las columnas indicadoras."""</span>
+<span class="k">def</span> <span class="nf">wilderness_label</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Nombre del área silvestre de cada fila a partir de las columnas indicadoras.&quot;&quot;&quot;</span>
     <span class="n">idx</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">WILD_COLS</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">idx</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">index</span><span class="p">)</span><span class="o">.</span><span class="n">map</span><span class="p">(</span><span class="n">WILD_NAMES</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">soil_label</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Número del tipo de suelo de cada fila a partir de las columnas indicadoras."""</span>
+<span class="k">def</span> <span class="nf">soil_label</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Número del tipo de suelo de cada fila a partir de las columnas indicadoras.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">SOIL_COLS</span><span class="p">]</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">()</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">X</span><span class="o">.</span><span class="n">index</span><span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">engineer_features</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Ingeniería de variables sin parámetros aprendidos (no genera fuga).</span>
+<span class="k">def</span> <span class="nf">engineer_features</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Ingeniería de variables sin parámetros aprendidos (no genera fuga).</span>
 
 <span class="sd">    - Orientación circular: seno y coseno del azimut.</span>
 <span class="sd">    - log1p en las distancias horizontales, que tienen cola derecha larga.</span>
 <span class="sd">    - Distancia euclidiana al agua superficial más cercana.</span>
 <span class="sd">    - Elevación relativa al agua: elevación menos la distancia vertical.</span>
-<span class="sd">    """</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
-    <span class="n">rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="s2">"Aspect"</span><span class="p">])</span>
-    <span class="n">X</span><span class="p">[</span><span class="s2">"Aspect_sin"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
-    <span class="n">X</span><span class="p">[</span><span class="s2">"Aspect_cos"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
-    <span class="n">X</span><span class="p">[</span><span class="s2">"Dist_Hydrology_Euclid"</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span>
-        <span class="n">X</span><span class="p">[</span><span class="s2">"Horizontal_Distance_To_Hydrology"</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="s2">"Vertical_Distance_To_Hydrology"</span><span class="p">]</span>
+    <span class="n">rad</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">deg2rad</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="s2">&quot;Aspect&quot;</span><span class="p">])</span>
+    <span class="n">X</span><span class="p">[</span><span class="s2">&quot;Aspect_sin&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">sin</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
+    <span class="n">X</span><span class="p">[</span><span class="s2">&quot;Aspect_cos&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">cos</span><span class="p">(</span><span class="n">rad</span><span class="p">)</span>
+    <span class="n">X</span><span class="p">[</span><span class="s2">&quot;Dist_Hydrology_Euclid&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">hypot</span><span class="p">(</span>
+        <span class="n">X</span><span class="p">[</span><span class="s2">&quot;Horizontal_Distance_To_Hydrology&quot;</span><span class="p">],</span> <span class="n">X</span><span class="p">[</span><span class="s2">&quot;Vertical_Distance_To_Hydrology&quot;</span><span class="p">]</span>
     <span class="p">)</span>
-    <span class="n">X</span><span class="p">[</span><span class="s2">"Elevation_Minus_VDH"</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="s2">"Elevation"</span><span class="p">]</span> <span class="o">-</span> <span class="n">X</span><span class="p">[</span><span class="s2">"Vertical_Distance_To_Hydrology"</span><span class="p">]</span>
+    <span class="n">X</span><span class="p">[</span><span class="s2">&quot;Elevation_Minus_VDH&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="s2">&quot;Elevation&quot;</span><span class="p">]</span> <span class="o">-</span> <span class="n">X</span><span class="p">[</span><span class="s2">&quot;Vertical_Distance_To_Hydrology&quot;</span><span class="p">]</span>
     <span class="k">for</span> <span class="n">col</span> <span class="ow">in</span> <span class="n">LOG_COLS</span><span class="p">:</span>
         <span class="n">X</span><span class="p">[</span><span class="n">col</span><span class="p">]</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">log1p</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">col</span><span class="p">])</span>
-    <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">"Aspect"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">drop</span><span class="p">(</span><span class="n">columns</span><span class="o">=</span><span class="s2">&quot;Aspect&quot;</span><span class="p">)</span>
 
 
-<span class="n">ENG_NUM_COLS</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">NUM_COLS</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">"Aspect"</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
-    <span class="s2">"Aspect_sin"</span><span class="p">,</span>
-    <span class="s2">"Aspect_cos"</span><span class="p">,</span>
-    <span class="s2">"Dist_Hydrology_Euclid"</span><span class="p">,</span>
-    <span class="s2">"Elevation_Minus_VDH"</span><span class="p">,</span>
+<span class="n">ENG_NUM_COLS</span> <span class="o">=</span> <span class="p">[</span><span class="n">c</span> <span class="k">for</span> <span class="n">c</span> <span class="ow">in</span> <span class="n">NUM_COLS</span> <span class="k">if</span> <span class="n">c</span> <span class="o">!=</span> <span class="s2">&quot;Aspect&quot;</span><span class="p">]</span> <span class="o">+</span> <span class="p">[</span>
+    <span class="s2">&quot;Aspect_sin&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Aspect_cos&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Dist_Hydrology_Euclid&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;Elevation_Minus_VDH&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">build_preprocessor</span><span class="p">(</span><span class="n">engineered</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Preprocesamiento: escalado de numéricas e indicadoras sin cambios."""</span>
+<span class="k">def</span> <span class="nf">build_preprocessor</span><span class="p">(</span><span class="n">engineered</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Preprocesamiento: escalado de numéricas e indicadoras sin cambios.&quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">engineered</span><span class="p">:</span>
         <span class="n">scale</span> <span class="o">=</span> <span class="n">ColumnTransformer</span><span class="p">(</span>
-            <span class="p">[(</span><span class="s2">"num"</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">ENG_NUM_COLS</span><span class="p">),</span> <span class="p">(</span><span class="s2">"bin"</span><span class="p">,</span> <span class="s2">"passthrough"</span><span class="p">,</span> <span class="n">BIN_COLS</span><span class="p">)]</span>
+            <span class="p">[(</span><span class="s2">&quot;num&quot;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">ENG_NUM_COLS</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;passthrough&quot;</span><span class="p">,</span> <span class="n">BIN_COLS</span><span class="p">)]</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="n">Pipeline</span><span class="p">(</span>
             <span class="p">[</span>
-                <span class="p">(</span><span class="s2">"features"</span><span class="p">,</span> <span class="n">FunctionTransformer</span><span class="p">(</span><span class="n">engineer_features</span><span class="p">)),</span>
-                <span class="p">(</span><span class="s2">"scale"</span><span class="p">,</span> <span class="n">scale</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;features&quot;</span><span class="p">,</span> <span class="n">FunctionTransformer</span><span class="p">(</span><span class="n">engineer_features</span><span class="p">)),</span>
+                <span class="p">(</span><span class="s2">&quot;scale&quot;</span><span class="p">,</span> <span class="n">scale</span><span class="p">),</span>
             <span class="p">]</span>
         <span class="p">)</span>
     <span class="k">return</span> <span class="n">ColumnTransformer</span><span class="p">(</span>
-        <span class="p">[(</span><span class="s2">"num"</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">NUM_COLS</span><span class="p">),</span> <span class="p">(</span><span class="s2">"bin"</span><span class="p">,</span> <span class="s2">"passthrough"</span><span class="p">,</span> <span class="n">BIN_COLS</span><span class="p">)]</span>
+        <span class="p">[(</span><span class="s2">&quot;num&quot;</span><span class="p">,</span> <span class="n">StandardScaler</span><span class="p">(),</span> <span class="n">NUM_COLS</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;bin&quot;</span><span class="p">,</span> <span class="s2">&quot;passthrough&quot;</span><span class="p">,</span> <span class="n">BIN_COLS</span><span class="p">)]</span>
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">build_logreg</span><span class="p">(</span><span class="n">engineered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">class_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">2000</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Pipeline completo del modelo base."""</span>
+<span class="k">def</span> <span class="nf">build_logreg</span><span class="p">(</span><span class="n">engineered</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">C</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">class_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">2000</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Pipeline completo del modelo base.&quot;&quot;&quot;</span>
     <span class="k">return</span> <span class="n">Pipeline</span><span class="p">(</span>
         <span class="p">[</span>
-            <span class="p">(</span><span class="s2">"prep"</span><span class="p">,</span> <span class="n">build_preprocessor</span><span class="p">(</span><span class="n">engineered</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">&quot;prep&quot;</span><span class="p">,</span> <span class="n">build_preprocessor</span><span class="p">(</span><span class="n">engineered</span><span class="p">)),</span>
             <span class="p">(</span>
-                <span class="s2">"clf"</span><span class="p">,</span>
+                <span class="s2">&quot;clf&quot;</span><span class="p">,</span>
                 <span class="n">LogisticRegression</span><span class="p">(</span>
                     <span class="n">C</span><span class="o">=</span><span class="n">C</span><span class="p">,</span> <span class="n">class_weight</span><span class="o">=</span><span class="n">class_weight</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">RANDOM_STATE</span>
                 <span class="p">),</span>
@@ -628,13 +628,13 @@ que todos los capítulos usan exactamente la misma partición y el mismo preproc
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_tabla_html</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">"""Muestra el nombre del índice en la misma fila que los encabezados de columna.</span>
+<span class="k">def</span> <span class="nf">_tabla_html</span><span class="p">(</span><span class="n">df</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Muestra el nombre del índice en la misma fila que los encabezados de columna.</span>
 
 <span class="sd">    Por defecto, pandas dibuja el nombre del índice en una segunda fila del encabezado,</span>
 <span class="sd">    que queda vacía en el resto de las columnas. Aquí el índice nombrado se convierte en</span>
 <span class="sd">    columna(s) y la tabla se dibuja sin la columna de índice posicional.</span>
-<span class="sd">    """</span>
+<span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">con_nombre</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">n</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="k">for</span> <span class="n">n</span> <span class="ow">in</span> <span class="n">df</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">names</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">con_nombre</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">df</span><span class="o">.</span><span class="n">columns</span><span class="p">,</span> <span class="n">pd</span><span class="o">.</span><span class="n">MultiIndex</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">df</span><span class="o">.</span><span class="n">_repr_html_</span><span class="p">()</span>
@@ -643,22 +643,22 @@ que todos los capítulos usan exactamente la misma partición y el mismo preproc
     <span class="n">tabla</span> <span class="o">=</span> <span class="n">tabla</span><span class="o">.</span><span class="n">reset_index</span><span class="p">()</span>
     <span class="k">return</span> <span class="n">tabla</span><span class="o">.</span><span class="n">to_html</span><span class="p">(</span>
         <span class="n">index</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">max_rows</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">get_option</span><span class="p">(</span><span class="s2">"display.max_rows"</span><span class="p">),</span>
-        <span class="n">max_cols</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">get_option</span><span class="p">(</span><span class="s2">"display.max_columns"</span><span class="p">),</span>
+        <span class="n">max_rows</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">get_option</span><span class="p">(</span><span class="s2">&quot;display.max_rows&quot;</span><span class="p">),</span>
+        <span class="n">max_cols</span><span class="o">=</span><span class="n">pd</span><span class="o">.</span><span class="n">get_option</span><span class="p">(</span><span class="s2">&quot;display.max_columns&quot;</span><span class="p">),</span>
         <span class="n">border</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
-        <span class="n">classes</span><span class="o">=</span><span class="s2">"dataframe"</span><span class="p">,</span>
+        <span class="n">classes</span><span class="o">=</span><span class="s2">&quot;dataframe&quot;</span><span class="p">,</span>
     <span class="p">)</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">configurar_tablas</span><span class="p">():</span>
-<span class="w">    </span><span class="sd">"""Registra el formato común de tablas en el núcleo de IPython (si existe)."""</span>
+<span class="k">def</span> <span class="nf">configurar_tablas</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Registra el formato común de tablas en el núcleo de IPython (si existe).&quot;&quot;&quot;</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="kn">from</span><span class="w"> </span><span class="nn">IPython</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_ipython</span>
+        <span class="kn">from</span> <span class="nn">IPython</span> <span class="kn">import</span> <span class="n">get_ipython</span>
     <span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
         <span class="k">return</span>
     <span class="n">ip</span> <span class="o">=</span> <span class="n">get_ipython</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">ip</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-        <span class="n">ip</span><span class="o">.</span><span class="n">display_formatter</span><span class="o">.</span><span class="n">formatters</span><span class="p">[</span><span class="s2">"text/html"</span><span class="p">]</span><span class="o">.</span><span class="n">for_type</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">_tabla_html</span><span class="p">)</span>
+        <span class="n">ip</span><span class="o">.</span><span class="n">display_formatter</span><span class="o">.</span><span class="n">formatters</span><span class="p">[</span><span class="s2">&quot;text/html&quot;</span><span class="p">]</span><span class="o">.</span><span class="n">for_type</span><span class="p">(</span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">,</span> <span class="n">_tabla_html</span><span class="p">)</span>
 
 
 <span class="n">configurar_tablas</span><span class="p">()</span>
